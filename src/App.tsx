@@ -1,35 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import Controller from "./Controller";
+import { Canvas } from "@react-three/fiber";
+import { useState } from "react";
+import type { LineData } from "./types";
+import * as THREE from "three";
+import Dummy from "./Dummy";
 
-function App() {
-  const [count, setCount] = useState(0)
+function App() {}
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+// function App() {
+//   const testData: LineData = {
+//     id: -1,
+//     points: [new THREE.Vector3(1, 1, 0), new THREE.Vector3(0, 0, 0)],
+//     color: 0xff0000,
+//   };
 
-export default App
+//   const [lines, setLines] = useState<LineData[]>([testData]);
+
+//   return (
+//     <>
+//       <Canvas>
+//         <ambientLight color={0xffffff} intensity={1} />
+//         {lines.map((line) => (
+//           <line key={line.id}>
+//             <bufferGeometry attach="geometry">
+//               <float32BufferAttribute
+//                 attach="attributes-position"
+//                 args={[line.points.flatMap((p) => [p.x, p.y, p.z]), 3]}
+//               />
+//             </bufferGeometry>
+//             <lineBasicMaterial color={line.color} attach="material" />
+//           </line>
+//         ))}
+//       </Canvas>
+//       <Controller setLines={setLines} />
+//       <Dummy />
+//     </>
+//   );
+// }
+
+export default App;
