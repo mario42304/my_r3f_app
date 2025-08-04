@@ -6,37 +6,55 @@ import type { LineData } from "./types";
 import * as THREE from "three";
 import Dummy from "./Dummy";
 
-function App() {}
+function App() {
+  const colorHighlight = "#ff0000";
+  const testData: LineData = {
+    id: -1,
+    points: [1, 1, 0, 0, 0, 0],
+    color: "#00ff00",
+  };
 
-// function App() {
-//   const testData: LineData = {
-//     id: -1,
-//     points: [new THREE.Vector3(1, 1, 0), new THREE.Vector3(0, 0, 0)],
-//     color: 0xff0000,
-//   };
+  const raycasterParams: THREE.RaycasterParameters = {
+    Mesh: {},
+    Line: { threshold: 0.1 },
+    LOD: {},
+    Points: { threshold: 1 },
+    Sprite: {},
+  };
 
-//   const [lines, setLines] = useState<LineData[]>([testData]);
+  const [lines, setLines] = useState<LineData[]>([testData]);
+  const [onHoverId, setOnHoverId] = useState<number | null>(null);
 
-//   return (
-//     <>
-//       <Canvas>
-//         <ambientLight color={0xffffff} intensity={1} />
-//         {lines.map((line) => (
-//           <line key={line.id}>
-//             <bufferGeometry attach="geometry">
-//               <float32BufferAttribute
-//                 attach="attributes-position"
-//                 args={[line.points.flatMap((p) => [p.x, p.y, p.z]), 3]}
-//               />
-//             </bufferGeometry>
-//             <lineBasicMaterial color={line.color} attach="material" />
-//           </line>
-//         ))}
-//       </Canvas>
-//       <Controller setLines={setLines} />
-//       <Dummy />
-//     </>
-//   );
-// }
+  return (
+    <>
+      <Canvas className="canvas" raycaster={{ params: raycasterParams }}>
+        {lines.map((line) => (
+          <line
+            key={line.id}
+            onClick={(e) => {
+              e.stopPropagation();
+              alert("you clicked Line: " + line.id);
+            }}
+            onPointerOver={() => setOnHoverId(line.id)}
+            onPointerOut={() => setOnHoverId(null)}
+          >
+            <bufferGeometry attach="geometry">
+              <float32BufferAttribute
+                attach="attributes-position"
+                args={[line.points, 3]}
+              />
+            </bufferGeometry>
+            <lineBasicMaterial
+              attach="material"
+              color={onHoverId === line.id ? colorHighlight : line.color}
+            />
+          </line>
+        ))}
+      </Canvas>
+      <Controller setLines={setLines} />
+      <Dummy />
+    </>
+  );
+}
 
 export default App;
