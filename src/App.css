@@ -17,3 +17,9 @@ body {
   border: 3px, solid, rgb(139, 66, 103);
   border-radius: 5px;
 }
+
+.info-panel {
+  position: absolute;
+  top: 0;
+  left: 20px;
+}
