@@ -6,29 +6,58 @@ import { useState } from "react";
 import * as THREE from "three";
 import Dummy from "./Dummy";
 import type { Link, Joint } from "./types";
+import isJoint from "./isJoint";
+import isLink from "./isLink";
 
 function App() {
   const [joints, setJoints] = useState<Joint[]>([
-    { type: "point", id: 1, position: [0, 0, 0], color: "#00ff00" },
+    {
+      type: "point",
+      id: crypto.randomUUID(),
+      position: [0, 0, 0],
+      partnerPosition: null,
+      color: "#00ff00",
+    },
+    {
+      type: "point",
+      id: crypto.randomUUID(),
+      position: [1, 1, 0],
+      partnerPosition: null,
+      color: "#00ff00",
+    },
   ]);
   const [links, setLinks] = useState<Link[]>([]);
-  const [onHoverId, setOnHoverId] = useState<number | null>(null);
+  const [onHoverId, setOnHoverId] = useState<string | null>(null);
   const [selectedObject, setSelectedObject] = useState<Joint | Link | null>(
     null
   );
 
   const InfoPanel = () => {
-    if (selectedObject !== null) {
+    if (selectedObject === null) {
+      return (
+        <>
+          <p>not selected</p>
+        </>
+      );
+    } else if (isJoint(selectedObject)) {
       return (
         <>
           <p>Object type: {selectedObject.type}</p>
           <p>Object ID: {selectedObject.id}</p>
+          <p>Object Position: {selectedObject.position.map((n) => `${n}, `)}</p>
+          <p>
+            Object Partner Pos:{" "}
+            {selectedObject.partnerPosition
+              ? selectedObject.partnerPosition.map((n) => `${n}, `)
+              : "null"}
+          </p>
         </>
       );
-    } else {
+    } else if (isLink(selectedObject)) {
       return (
         <>
-          <p>not selected</p>
+          <p>Object type: {selectedObject.type}</p>
+          <p>Object ID: {selectedObject.id}</p>
         </>
       );
     }
@@ -38,7 +67,7 @@ function App() {
     return [...link.start, ...link.end];
   };
 
-  const handleChangePointColor = (point: Joint) => {
+  const handleChangePointColor = (point: Joint | Link) => {
     if (point.id === onHoverId) return colorHover;
     if (selectedObject !== null && point.id === selectedObject.id)
       return colorSelected;
@@ -47,9 +76,9 @@ function App() {
 
   const raycasterParams: THREE.RaycasterParameters = {
     Mesh: {},
-    Line: { threshold: 0.1 },
+    Line: { threshold: 0.05 },
     LOD: {},
-    Points: { threshold: 0.1 },
+    Points: { threshold: 0.2 },
     Sprite: {},
   };
 
@@ -89,7 +118,7 @@ function App() {
           </points>
         ))}
         {links.map((link) => (
-          <link
+          <line
             key={`link-${link.id}`}
             onPointerOver={() => setOnHoverId(link.id)}
             onPointerOut={() => setOnHoverId(null)}
@@ -104,8 +133,11 @@ function App() {
                 args={[createArgs(link), 3]}
               />
             </bufferGeometry>
-            <lineBasicMaterial attach="material" color={link.color} />
-          </link>
+            <lineBasicMaterial
+              attach="material"
+              color={handleChangePointColor(link)}
+            />
+          </line>
         ))}
       </Canvas>
       <div className="info-panel">{InfoPanel()}</div>
@@ -115,77 +147,9 @@ function App() {
         setLinks={setLinks}
       />
       {/* <Controller /> */}
-      <button
-        onClick={() =>
-          setLinks((prev) => [
-            ...prev,
-            {
-              type: "line",
-              id: -1,
-              start: [-1, -1, 0],
-              end: [1, -1, 0],
-              color: "#ffffff",
-              position: [0, 0, 0],
-            },
-          ])
-        }
-      >
-        test
-      </button>
       <Dummy />
     </>
   );
 }
-
-// function App() {
-//   const colorHighlight = "#ff0000";
-//   const testData: LineData = {
-//     id: -1,
-//     points: [1, 1, 0, 0, 0, 0],
-//     color: "#00ff00",
-//   };
-
-//   const raycasterParams: THREE.RaycasterParameters = {
-//     Mesh: {},
-//     Line: { threshold: 0.1 },
-//     LOD: {},
-//     Points: { threshold: 1 },
-//     Sprite: {},
-//   };
-
-//   const [lines, setLines] = useState<LineData[]>([testData]);
-//   const [onHoverId, setOnHoverId] = useState<number | null>(null);
-
-//   return (
-//     <>
-//       <Canvas className="canvas" raycaster={{ params: raycasterParams }}>
-//         {lines.map((line) => (
-//           <line
-//             key={line.id}
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               alert("you clicked Line: " + line.id);
-//             }}
-//             onPointerOver={() => setOnHoverId(line.id)}
-//             onPointerOut={() => setOnHoverId(null)}
-//           >
-//             <bufferGeometry attach="geometry">
-//               <float32BufferAttribute
-//                 attach="attributes-position"
-//                 args={[line.points, 3]}
-//               />
-//             </bufferGeometry>
-//             <lineBasicMaterial
-//               attach="material"
-//               color={onHoverId === line.id ? colorHighlight : line.color}
-//             />
-//           </line>
-//         ))}
-//       </Canvas>
-//       <Controller setLines={setLines} />
-//       <Dummy />
-//     </>
-//   );
-// }
 
 export default App;

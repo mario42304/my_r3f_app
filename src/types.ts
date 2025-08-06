@@ -14,18 +14,20 @@ export interface LineData {
   color: string;
 }
 
-export interface Joint {
+export interface ObjectBase {
   type: string;
-  id: number;
-  position: [number, number, number];
+  id: string;
   color: string;
 }
 
-export interface Link {
-  type: string;
-  id: number;
+export interface Joint extends ObjectBase {
+  position: [number, number, number];
+  partnerPosition: [number, number, number] | null;
+}
+
+export interface Link extends ObjectBase {
   start: [number, number, number];
   end: [number, number, number];
-  color: string;
-  position: [0, 0, 0]; //unuse
 }
+
+export type ObjectData = Joint | Link | null;

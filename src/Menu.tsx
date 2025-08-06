@@ -1,9 +1,10 @@
-import type { Joint, Link } from "./types";
+import type { Joint, Link, ObjectData } from "./types";
 import { useState } from "react";
 import alertMessage from "./alertMessage";
+import isJoint from "./isJoint";
 
 interface MenuProps {
-  selectedObject: Joint | Link | null;
+  selectedObject: ObjectData;
   setJoints: React.Dispatch<React.SetStateAction<Joint[]>>;
   setLinks: React.Dispatch<React.SetStateAction<Link[]>>;
 }
@@ -25,8 +26,13 @@ export default function Menu({
     y: "",
   });
 
-  const createPoint = () => {
-    if (coordinates.x === "" || coordinates.y === "") {
+  const isNumericString = (numericStirng: string) => {
+    const regex = /^-?\d+(.\d+)?$/;
+    return regex.test(numericStirng);
+  };
+
+  const handleCreatePoint = () => {
+    if (!isNumericString(coordinates.x) || !isNumericString(coordinates.y)) {
       setCoordinates({ x: "", y: "" });
       alertMessage("input number");
       return;
@@ -36,45 +42,57 @@ export default function Menu({
       ...prev,
       {
         type: "point",
-        id: Date.now(),
+        id: crypto.randomUUID(),
         position: [Number(coordinates.x), Number(coordinates.y), 0],
+        partnerPosition: null,
         color: "#00ff00",
       },
     ]);
   };
 
-  const createLine = () => {
-    if (length === "" || angle === "") {
-      setlength("");
-      setAngle("");
-      alertMessage("input number");
-      return;
+  const handleCreateLine = () => {
+    if (isJoint(selectedObject)) {
+      if (length === "" || angle === "") {
+        setlength("");
+        setAngle("");
+        alertMessage("input number");
+        return;
+      }
+
+      const x =
+        selectedObject!.position[0] +
+        Number(length) * Math.cos((Number(angle) * Math.PI) / 180);
+      const y =
+        selectedObject!.position[1] +
+        Number(length) * Math.sin((Number(angle) * Math.PI) / 180);
+
+      setJoints((prev) => [
+        ...prev,
+        {
+          type: "point",
+          id: crypto.randomUUID(),
+          position: [x, y, 0],
+          partnerPosition: selectedObject.position,
+          color: "#00ff00",
+        },
+      ]);
+      setJoints((prev) =>
+        prev.map((p) =>
+          p.id === selectedObject.id ? { ...p, partnerPosition: [x, y, 0] } : p
+        )
+      );
+      setLinks((prev) => [
+        ...prev,
+        {
+          type: "line",
+          id: crypto.randomUUID(),
+          start: selectedObject.position,
+          end: [x, y, 0],
+          color: "#ffffff",
+          position: [0, 0, 0],
+        },
+      ]);
     }
-
-    const x =
-      selectedObject!.position[0] +
-      Number(length) * Math.cos((Number(angle) * Math.PI) / 180);
-    const y =
-      selectedObject!.position[1] +
-      Number(length) * Math.sin((Number(angle) * Math.PI) / 180);
-
-    const id = Date.now();
-
-    setJoints((prev) => [
-      ...prev,
-      { type: "point", id: id, position: [x, y, 0], color: "#00ff00" },
-    ]);
-    setLinks((prev) => [
-      ...prev,
-      {
-        type: "line",
-        id: id,
-        start: selectedObject!.position,
-        end: [x, y, 0],
-        color: "#ffffff",
-        position: [0, 0, 0],
-      },
-    ]);
   };
 
   let menu;
@@ -101,7 +119,7 @@ export default function Menu({
             }
           />
         </div>
-        <button onClick={createPoint}>create point</button>
+        <button onClick={handleCreatePoint}>create point</button>
       </>
     );
   } else if (selectedObject.type === "point") {
@@ -123,11 +141,15 @@ export default function Menu({
             onChange={(e) => setAngle(e.target.value)}
           />
         </div>
-        <button onClick={createLine}>create line</button>
+        <button onClick={handleCreateLine}>create line</button>
       </>
     );
   } else if (selectedObject.type === "line") {
-    menu = <></>;
+    menu = (
+      <>
+        <p>TODO</p>
+      </>
+    );
   }
   return menu;
 }
