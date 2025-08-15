@@ -14,16 +14,12 @@ function App() {
     {
       type: "point",
       id: crypto.randomUUID(),
+      color: "#00ff00",
       position: [0, 0, 0],
       partnerPosition: null,
-      color: "#00ff00",
-    },
-    {
-      type: "point",
-      id: crypto.randomUUID(),
-      position: [1, 1, 0],
-      partnerPosition: null,
-      color: "#00ff00",
+      isFixed: true,
+      shape: "cylindrical",
+      isDriver: true,
     },
   ]);
   const [links, setLinks] = useState<Link[]>([]);

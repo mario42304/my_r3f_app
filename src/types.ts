@@ -23,6 +23,9 @@ export interface ObjectBase {
 export interface Joint extends ObjectBase {
   position: [number, number, number];
   partnerPosition: [number, number, number] | null;
+  isFixed: boolean;
+  shape: string; //cylindrical or spherical joint
+  isDriver: boolean;
 }
 
 export interface Link extends ObjectBase {

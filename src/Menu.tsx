@@ -46,6 +46,9 @@ export default function Menu({
         position: [Number(coordinates.x), Number(coordinates.y), 0],
         partnerPosition: null,
         color: "#00ff00",
+        isFixed: false,
+        shape: "cylindrical",
+        isDriver: false,
       },
     ]);
   };
@@ -74,6 +77,9 @@ export default function Menu({
           position: [x, y, 0],
           partnerPosition: selectedObject.position,
           color: "#00ff00",
+          isFixed: false,
+          shape: "cylindrical",
+          isDriver: false,
         },
       ]);
       setJoints((prev) =>
